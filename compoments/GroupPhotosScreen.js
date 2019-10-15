@@ -4,10 +4,10 @@ import styles from './styles';
 import uuid from 'react-native-uuid';
 //import AsyncStorage from '@react-native-community/async-storage';
 import {AsyncStorage} from 'react-native';
-import * as firebase from 'firebase';
+
 
 //import * as GLOBAL from './global.js';
-import { RetrieveData, StoreData, ConfirmAlert, AsyncAlert } from './helpers.js';
+import { RetrieveData, StoreData, ConfirmAlert, AsyncAlert, cloud_delete_photo, cloud_upload_photo } from './helpers.js';
 
 
 class GroupPhotosScreen extends Component {
@@ -42,6 +42,88 @@ class GroupPhotosScreen extends Component {
     group_id: 0,
     uploaded: false,
   }
+
+  cloud_delete_group = (group_id) => {
+    console.log('In cloud_delete_group function.');
+
+    //const group_id = this.state.group_id;
+    let photos = global.photos;
+    const cover = this.state.cover;
+ 
+    var i;
+    for ( i=0; i< photos.length; i++ ) {
+      let p = photos[i];
+      let is_cover = false;
+      if ( p.uri == cover ){
+        is_cover = true;
+      }
+      let result = cloud_delete_photo(p.uri, group_id, is_cover);
+      if ( !result ) {
+        return;
+      }
+    }
+  }
+
+  cloud_upload_group = (group_id, cover) => {
+    /* Upload photos in the group to Cloud (Firebase Storage) */
+
+    console.log(' *** In uploadPhotos method.*********');
+
+    //const group_id = this.state.group_id;
+    let photos = global.photos;
+    //const cover = this.state.cover;
+ 
+    var i;
+    for ( i=0; i< photos.length; i++ ) {
+      let p = photos[i];
+      let is_cover = false;
+      if ( p.uri == cover ){
+        is_cover = true;
+      }
+      let result = cloud_upload_photo(p.uri, group_id, is_cover);
+      if ( !result ) {
+        return;
+      }
+    }
+
+    // Todo: change this function to async await
+    // these two lines excute always
+    //this.setState({ uploaded: true });
+    //this.updateGroup(true); 
+    
+    /*var alert_text = 'Are you sure to upload this group of photos? They will be used for trainning curation app.';
+    var yes_text = 'Upload';
+    if (this.state.uploaded){
+      alert_text = 'This group of photos has been uploaded and synced. Would you like to sync it again?';
+      yes_text = 'Sync';
+    }
+
+    Alert.alert(
+      'Alert',
+      alert_text,
+      [
+        {
+          text: 'Cancel',
+          onPress: () => {
+            console.log('Upload group Canceled.');
+          },
+          style: 'cancel',
+        },
+
+        {
+          text: yes_text,
+          onPress: () => {
+            console.log('Upload group Yes pressed.');
+         
+
+          },
+          style: 'destructive',
+        },
+      ],
+      {cancelable: false},
+
+    );   */
+  } 
 
   fetchData = () => {
     console.log('In fetchData method.')
@@ -97,7 +179,7 @@ class GroupPhotosScreen extends Component {
     // this.setGlobalState();
     this.fetchData();
     this.props.navigation.setParams({DeleteGroup: this._deleteGroup,});   
-    this.props.navigation.setParams({UploadGroup: this._uploadGroup,});     
+    this.props.navigation.setParams({UploadGroup: this.cloud_upload_group,});     
 }
 
 _deleteGroup = () => {
@@ -130,6 +212,7 @@ _deleteGroup = () => {
             groups.splice(index, 1);
             global.groups = groups;
             StoreData('groups', groups);
+            this.cloud_delete_group(this.state.group_id);
             this.props.navigation.push('Groups');
       }           
         },
@@ -178,7 +261,7 @@ _deleteGroup = () => {
   }
 
   saveNewGroup = (photos) => {
-    /* Save new group to the device */
+    /* Save new group to the device and cloud */
 
     console.log(' *** In GroupPhotosScreen saveNewGroup method.*********');    
 
@@ -208,8 +291,8 @@ _deleteGroup = () => {
     console.log('groups length: ', global.groups.length);
 
     StoreData('groups', global.groups);
+    this.cloud_upload_group(group_id, cover);
   } 
-
 
 
   updateGroup = (uploaded=false) => {
@@ -235,61 +318,6 @@ _deleteGroup = () => {
       StoreData('groups', groups);
     }
   }
-
-  uploadImage = async (uri, group_id, is_cover) => {
-    console.log('>>>>>In uploadImage function.<<<<');
-
-    //const uri = this.state.photo.uri;
-    const n1 = uri.search("id=") + 3;
-    console.log('n1: ', n1);
-
-    const n2 = uri.search("&ext");
-    console.log('n2: ', n2);
-
-    var id = uri.substring(n1, n2);
-    id = id + '?is_cover=' + is_cover;
-    console.log('id: ', id);
-
-    const response = await fetch(uri);
-    const blob = await response.blob();
-
-    var ref = firebase.storage().ref().child('groups/' + group_id + '/' + id);
-    ref.put(blob).then((res) => {
-      //console.log('Success: ', res);
-      console.log('Success');
-      return true;
-    })
-    .catch((error) => {
-      console.log('Error: ', error)
-      return false;
-    })
-
-  }
-
-  _uploadGroup = () => {
-    console.log(' *** In uploadPhotos method.*********');
-    const group_id = this.state.group_id;
-    let photos = global.photos;
-    const cover = this.state.cover;
- 
-    var i;
-    for ( i=0; i< photos.length; i++ ) {
-      let p = photos[i];
-      let is_cover = false;
-      if ( p.uri == cover ){
-        is_cover = true;
-      }
-      let result = this.uploadImage(p.uri, group_id, is_cover);
-      if ( !result ) {
-        return;
-      }
-    }
-
-    // Todo: change this function to async await
-    // these two lines excute always
-    this.setState({ uploaded: true });
-    this.updateGroup(true);    
-  } 
 
   render() {
     

@@ -1,4 +1,5 @@
 import { AsyncStorage, Alert } from 'react-native'
+import * as firebase from 'firebase';
 
 export async function RetrieveData (id){
 
@@ -24,8 +25,61 @@ export async function RetrieveData (id){
     }
     catch(err){
       // Error saving data
-    } 
+    }
+  }
 
+  export function get_id_from_uri(uri) {
+    var id;
+    const n1 = uri.search("id=") + 3;
+    console.log('n1: ', n1);
+
+    const n2 = uri.search("&ext");
+    console.log('n2: ', n2);
+
+    var id = uri.substring(n1, n2);
+    //id = id + '?is_cover=' + is_cover;
+    console.log('id: ', id);
+    return id;
+  }
+
+  export async function cloud_delete_photo (uri, group_id, is_cover) {
+    /* Delete one photo from Cloud (Firebase Storage) */
+    
+    var id = get_id_from_uri(uri);
+
+    var photo_name = id + '?is_cover=' + is_cover; 
+
+    var ref = firebase.storage().ref().child('CurationTrainer/' + group_id + '/' + photo_name);
+    ref.delete().then(() => {
+      console.log('photo deleted from cloud.');
+    })
+    .catch((error) => {
+      console.log('Error: ', error);
+    })
+  }
+
+  export async function cloud_upload_photo (uri, group_id, is_cover) {
+    /* Upload one photo to Cloud (Firebase Storage) */
+
+    console.log('>>>>>In cloud_upload_photo function.<<<<');    
+
+    const response = await fetch(uri);
+    const blob = await response.blob();
+
+    var id = get_id_from_uri(uri);
+    var photo_name = id + '?is_cover=' + is_cover;
+    console.log('photo_name: ', photo_name);
+
+    var ref = firebase.storage().ref().child('CurationTrainer/' + group_id + '/' + photo_name);
+    ref.put(blob).then((res) => {
+      //console.log('Success: ', res);
+      console.log('Success');
+      return true;
+    })
+    .catch((error) => {
+      console.log('Error: ', error)
+      return false;
+    })
   }
 
   export const AsyncAlert = async () => new Promise((resolve) => {
