@@ -27,9 +27,7 @@ class GroupPhotosScreen extends Component {
           <TouchableHighlight style={{width: 50}} onPress={navigation.getParam('DeleteGroup')}>
             <Image source={require('./images/delete_red.png')} style={{width:25, height:25}} />
           </TouchableHighlight>  
-          <TouchableHighlight style={{width: 50}} onPress={navigation.getParam('UploadGroup')}>
-          <Image source={require('./images/upload.png')} style={{width:25, height:25}} />
-        </TouchableHighlight>  
+  
         </View>
 
       ),
@@ -40,7 +38,7 @@ class GroupPhotosScreen extends Component {
     //photos: [],
     cover: 0,
     group_id: 0,
-    uploaded: false,
+    //uploaded: false,
   }
 
   cloud_delete_group = (group_id) => {
@@ -64,13 +62,13 @@ class GroupPhotosScreen extends Component {
     }
   }
 
-  cloud_upload_group = (group_id, cover) => {
+  cloud_upload_group = (group_id, photos, cover) => {
     /* Upload photos in the group to Cloud (Firebase Storage) */
 
     console.log(' *** In uploadPhotos method.*********');
 
     //const group_id = this.state.group_id;
-    let photos = global.photos;
+    //let photos = global.photos;
     //const cover = this.state.cover;
  
     var i;
@@ -85,44 +83,6 @@ class GroupPhotosScreen extends Component {
         return;
       }
     }
-
-    // Todo: change this function to async await
-    // these two lines excute always
-    //this.setState({ uploaded: true });
-    //this.updateGroup(true); 
-    
-    /*var alert_text = 'Are you sure to upload this group of photos? They will be used for trainning curation app.';
-    var yes_text = 'Upload';
-    if (this.state.uploaded){
-      alert_text = 'This group of photos has been uploaded and synced. Would you like to sync it again?';
-      yes_text = 'Sync';
-    }
-
-    Alert.alert(
-      'Alert',
-      alert_text,
-      [
-        {
-          text: 'Cancel',
-          onPress: () => {
-            console.log('Upload group Canceled.');
-          },
-          style: 'cancel',
-        },
-
-        {
-          text: yes_text,
-          onPress: () => {
-            console.log('Upload group Yes pressed.');
-         
-
-          },
-          style: 'destructive',
-        },
-      ],
-      {cancelable: false},
-
-    );   */
   } 
 
   fetchData = () => {
@@ -134,7 +94,7 @@ class GroupPhotosScreen extends Component {
     //console.log('photos.length from navigation: ', photos.length);
     //console.log('photos: ', photos);
      const cover = navigation.getParam('cover', 0);
-     const uploaded = navigation.getParam('uploaded', 0);
+     //const uploaded = navigation.getParam('uploaded', 0);
      var group_id = navigation.getParam('group_id', 0);
      //const new_group = navigation.getParam('new_group', false);
      const add_photos = navigation.getParam('add_photos', false);
@@ -142,7 +102,7 @@ class GroupPhotosScreen extends Component {
 
      this.setState({
        'group_id': group_id,
-       uploaded: uploaded,
+       //uploaded: uploaded,
       });
 
      if (add_photos){
@@ -151,6 +111,10 @@ class GroupPhotosScreen extends Component {
        console.log('add_photos is true, global.photos.length before push: ', global.photos.length);
        //ps.push(...photos);
        global.photos.push(...photos);
+
+       /* Upload added photos to cloud */
+       this.cloud_upload_group(group_id, photos, 0);
+
        console.log('ps.length after push: ', global.photos.length);
        //his.setState({photos: ps });
        this.updateGroup();
@@ -179,7 +143,7 @@ class GroupPhotosScreen extends Component {
     // this.setGlobalState();
     this.fetchData();
     this.props.navigation.setParams({DeleteGroup: this._deleteGroup,});   
-    this.props.navigation.setParams({UploadGroup: this.cloud_upload_group,});     
+    //this.props.navigation.setParams({UploadGroup: this.cloud_upload_group,});     
 }
 
 _deleteGroup = () => {
@@ -276,7 +240,7 @@ _deleteGroup = () => {
     this.setState({
       group_id: group_id,
       cover: cover,
-      uploaded: false,
+      //uploaded: false,
     });
 
     
@@ -284,18 +248,18 @@ _deleteGroup = () => {
       id: group_id,
       photos: photos,
       cover: cover,
-      uploaded: false,
+      //uploaded: false,
     }
     
     global.groups.unshift(group);
     console.log('groups length: ', global.groups.length);
 
     StoreData('groups', global.groups);
-    this.cloud_upload_group(group_id, cover);
+    this.cloud_upload_group(group_id, photos, cover);
   } 
 
 
-  updateGroup = (uploaded=false) => {
+  updateGroup = () => {
     /* Update group photos */
 
     console.log(' *** In GroupPhotosScreen updateGroup method.*********');
@@ -311,9 +275,9 @@ _deleteGroup = () => {
       let group = groups[index];
       group.photos = global.photos;
       //group.photos = this.state.photos;
-      if (uploaded){
-        group.uploaded = true;
-      }
+      //if (uploaded){
+      //  group.uploaded = true;
+      //}
       groups[index] = group;
       StoreData('groups', groups);
     }

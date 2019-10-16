@@ -137,16 +137,14 @@ class GroupsScreen extends Component {
                                             photos: item.photos,
                                             add_photos: false,
                                             cover: item.cover,
-                                            uploaded: item.uploaded,
+                                            //uploaded: item.uploaded,
                                              })}>
                                           <Image source={{uri:item.cover}} style={ styles.cardImage } />
                                         </TouchableHighlight>
                                     </View>
                                     <View style={styles.cardContent}>
                                       <Text style={styles.count}>({item.photos.length})</Text>
-                                      {item.uploaded? (<Image source={require('./images/cloud-computing.png')} style={{width:30, height:30}} />): 
-                                      null
-                                      }
+                                     
                                     </View>
                                
                                 </View>

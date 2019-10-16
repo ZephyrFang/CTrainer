@@ -5,7 +5,7 @@ import {AsyncStorage} from 'react-native';
 
 //import * as GLOBAL from './global.js';
 //import  GLOBAL from './global.js';
-import { RetrieveData, StoreData, ConfirmAlert } from './helpers.js'
+import { RetrieveData, StoreData, ConfirmAlert, cloud_delete_photo, cloud_upload_photo } from './helpers.js'
 
 import * as firebase from 'firebase';
 
@@ -20,9 +20,7 @@ class DisplayPhotoScreen extends Component{
     ),
     headerRight: (
       <View style={{ flex: 0.1, flexDirection:'row', }}>
-          <TouchableHighlight style={{width: 50}} onPress={navigation.getParam('uploadPhoto')}>
-          <Image source={require('./images/upload.png')} style={{width:25, height:25}} />
-        </TouchableHighlight>  
+          
         <TouchableHighlight style={{width: 50}} onPress={navigation.getParam('deletePhoto')}>
           <Image source={require('./images/delete.png')} style={{width:25, height:25}} />
         </TouchableHighlight>   
@@ -63,7 +61,7 @@ class DisplayPhotoScreen extends Component{
     this.props.navigation.setParams({
       //is_cover: this.state.is_cover, 
       deletePhoto: this._deletePhoto,
-      uploadPhoto: this.uploadImage, 
+      //uploadPhoto: this.uploadImage, 
       setCover: this._setCover,
       backToGroupPhotos: this._backToGroupPhotos,
       //render_cover_icon: this._render_cover_icon(),
@@ -151,7 +149,8 @@ class DisplayPhotoScreen extends Component{
                   console.log('photos length from global, after delete: ', photos.length);          
                 }  
 
-                
+                var is_cover = false;
+
                 if (photos.length == 0){
                   /* empty group should be deleted. */
                   groups.splice(g_index, 1);
@@ -160,18 +159,29 @@ class DisplayPhotoScreen extends Component{
                 else{
                   group.photos = photos;
                   //groups[g_index].cover = global.cover;
+                  
+                  
                   if ( this.state.cover == uri ){
-                    /* Cover photo has been deleted, change cover to the first photo */
-                    
+                    /* Cover photo has been deleted, change cover to the first photo */                    
+
                     const first_uri = photos[0].uri;  
                     this.setState({'cover': first_uri });                            
-                    group.cover = first_uri; 
+                    group.cover = first_uri;
+
+                    /* Sync with Cloud */
+                    is_cover = true;
+                    cloud_delete_photo(first_uri, group_id, false);
+                    cloud_upload_photo(first_uri, group_id, true);                                        
                   }
+                  
                   groups[g_index] = group;
                 }       
                 
                 global.groups = groups;
                 StoreData('groups', groups);
+
+                /* Sync with Cloud */
+                cloud_delete_photo(uri, group_id, is_cover); 
               }
             }  
       
@@ -212,9 +222,19 @@ class DisplayPhotoScreen extends Component{
     console.log('****In DisplayOnePhotoScreen setCover method.*****');
     //let photo = this.props.navigation.getParam('photo', []);
     //let uri = photo.uri;
-    const uri = this.state.photo.uri;
+    
 
     if ( ! this.state.is_cover ){
+
+      const uri = this.state.photo.uri;
+      const group_id = this.state.group_id;
+
+      /* Update the cover photo on Cloud (Firbase Storage) */
+      const old_cover = this.state.cover;
+      cloud_delete_photo(old_cover, group_id, true);
+      cloud_upload_photo(old_cover, group_id, false);
+      cloud_delete_photo(uri, group_id, false);
+      cloud_upload_photo(uri, group_id, true);
 
       //global.cover = uri;
       this.setState({ 
@@ -222,10 +242,10 @@ class DisplayPhotoScreen extends Component{
         'cover': uri,
        });
 
-       this.props.navigation.setParams({'is_cover': true});
+      this.props.navigation.setParams({'is_cover': true});
 
       let groups = global.groups;
-      const group_id = this.state.group_id;
+      
   
       if (group_id !== 0 ){
         let index = groups.findIndex( g => {
@@ -289,35 +309,6 @@ class DisplayPhotoScreen extends Component{
     });  
   } 
 
-  uploadImage = async () => {
-    console.log('>>>>>In uploadImage function.<<<<');
-
-    const uri = this.state.photo.uri;
-    const n1 = uri.search("id=") + 3;
-    console.log('n1: ', n1);
-
-    const n2 = uri.search("&ext");
-    console.log('n2: ', n2);
-
-    var id = uri.substring(n1, n2);
-    id = id + '?is_cover=' + this.state.is_cover;
-    console.log('id: ', id);
-
-    const response = await fetch(uri);
-    const blob = await response.blob();
-
-    var ref = firebase.storage().ref().child('images/' + this.state.group_id + '/' + id);
-    ref.put(blob).then((res) => {
-      //console.log('Success: ', res);
-      console.log('Success');
-    })
-    .catch((error) => {
-      console.log('Error: ', error)
-    })
-
-  }
-
- 
 
   render(){
     //GLOBAL.screen1State = this;
@@ -340,8 +331,6 @@ class DisplayPhotoScreen extends Component{
         
         <Image source={{uri: p_uri}} resizeMode='contain'
         style={{maxHeight: this.state.max_h, maxWidth: this.state.max_w, width: this.state.p_w, height: this.state.p_h}} />
-
-
         
                       
       </View>
