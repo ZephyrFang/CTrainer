@@ -24,6 +24,8 @@ class GroupsScreen extends Component {
                 <Button                 
                 onPress={() => {
                     firebase.auth().signOut();
+                    AsyncStorage.removeItem('userId'); 
+                    navigation.push('AuthLoading');
                 }}
                 title='Sign Out'
             />
@@ -43,7 +45,7 @@ class GroupsScreen extends Component {
           this.props.navigation.push('Authentication');    
         }*/
 
-        const { navigation } = this.props;
+        /*const { navigation } = this.props;
 
         firebase.auth().onAuthStateChanged(function(user) {
             if (!user) {
@@ -54,7 +56,7 @@ class GroupsScreen extends Component {
                 email = user.email;
                 alert(email);
             }
-          });
+          });*/
 
   
     }

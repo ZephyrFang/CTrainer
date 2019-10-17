@@ -4,6 +4,8 @@ import { Item, Form, Input, Button, Label, Container, Text } from 'native-base';
 import * as firebase from 'firebase';
 import styles from './styles';
 
+import { RetrieveData, StoreData } from './helpers.js'
+
 class AuthenticationScreen extends Component{
 
     state = {
@@ -15,7 +17,10 @@ class AuthenticationScreen extends Component{
         try {
             firebase.auth().signInWithEmailAndPassword(email, password);
             firebase.auth().onAuthStateChanged(user => {
-                alert(user.email);
+                alert(user.uid);
+                StoreData('userId', user.uid);
+                this.props.navigation.push('Groups');   
+                
             })
         }
         catch (error){

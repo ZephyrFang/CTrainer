@@ -12,7 +12,8 @@ import SelectPhotosScreen from './compoments/SelectPhotosScreen';
 import DisplayPhotoScreen from './compoments/DisplayOnePhotoScreen';
 import GroupPhotosScreen from './compoments/GroupPhotosScreen';
 import GroupsScreen from './compoments/GroupsScreen';
-import AuthenticationScreen from './compoments/AuthenticationScreen';
+import SignInScreen from './compoments/SignInScreen';
+import AuthLoadingScreen from './compoments/AuthLoadingScreen';
 
 
 //import AlbumsScreen from './compoments/AlbumsScreen';
@@ -23,7 +24,7 @@ import AuthenticationScreen from './compoments/AuthenticationScreen';
 
 //import AlbumPhotosScreen from './compoments/AlbumPhotosScreen';
 
-const RootNavigator = createStackNavigator(
+const AppStack = createStackNavigator(
   {
   //Home: HomeScreen,
   //ViewPhotos: ViewPhotosScreen,
@@ -36,11 +37,12 @@ const RootNavigator = createStackNavigator(
   //ImagePickerExample: PickImageScreen,
   //PickMultipleImages: PickMultipleImagesScreen,
   //FullImagePicker: FullImagePickerScreen,
+  SelectPhotos: SelectPhotosScreen,
   Groups: GroupsScreen,
   GroupPhotos: GroupPhotosScreen,
   DisplayPhoto: DisplayPhotoScreen,
-  SelectPhotos: SelectPhotosScreen,
-  Authentication: AuthenticationScreen,
+  
+  //Authentication: AuthenticationScreen,
   
   },
   {
@@ -48,7 +50,25 @@ const RootNavigator = createStackNavigator(
   }
 );
 
-const AppContainer = createAppContainer(RootNavigator);
+const AuthStack = createStackNavigator(
+  {
+    SignIn: SignInScreen,
+  }
+);
+
+const AppContainer = createAppContainer(
+  createSwitchNavigator(
+    {
+      AuthLoading: AuthLoadingScreen,
+      App: AppStack,
+      Auth: AuthStack,
+    },
+    {
+      InitialRouteName: 'AuthLoading',
+    }
+  )
+
+);
 
 export default class App extends Component {
   constructor(props){
