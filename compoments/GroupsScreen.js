@@ -6,6 +6,8 @@ import { AsyncStorage } from 'react-native';
 import { RetrieveData, StoreData } from './helpers.js';
 import * as GLOBAL from './global.js';
 
+import * as firebase from 'firebase';
+
 class GroupsScreen extends Component {
 
     static navigationOptions = ({navigation}) => {
@@ -17,6 +19,16 @@ class GroupsScreen extends Component {
                     title='Remove All'
                 />
               ),
+
+            headerRight: (
+                <Button                 
+                onPress={() => {
+                    firebase.auth().signOut();
+                }}
+                title='Sign Out'
+            />
+
+            )
         };
     }
 
@@ -25,9 +37,39 @@ class GroupsScreen extends Component {
         groups: [],
     }
 
+    componentWillMount(){
+        /*var user = firebase.auth().currentUser;;
+        if (user == null ){
+          this.props.navigation.push('Authentication');    
+        }*/
+
+        const { navigation } = this.props;
+
+        firebase.auth().onAuthStateChanged(function(user) {
+            if (!user) {
+                navigation.push('Authentication');                
+            } 
+            else{
+                name = user.displayName;
+                email = user.email;
+                alert(email);
+            }
+          });
+
+  
+    }
+
     componentDidMount(){
-        console.log('In GroupsScreen compomentDidMount method. ')
-        this.props.navigation.setParams({newGroup: this._newGroup, removeGroups: this._removeGroups});
+        console.log('In GroupsScreen compomentDidMount method. ');
+
+
+
+
+        this.props.navigation.setParams({
+            newGroup: this._newGroup, 
+            removeGroups: this._removeGroups,            
+        });
+        
         this.getGroups();        
     }
 
@@ -104,7 +146,8 @@ class GroupsScreen extends Component {
             ],
             {cancelable: false},      
           );         
-    }  
+    }    
+ 
   
     render (){
         console.log('In GroupsScreen render method. ')
@@ -115,8 +158,8 @@ class GroupsScreen extends Component {
     groupsCopy.unshift("New Group");
  
      return(
-      <View style={styles.albums_container}>
-
+      <View style={styles.albums_container}>                   
+        
           <FlatList style={styles.list} 
                     contentContainerStyle={styles.listContainer}
                     data={groupsCopy} 

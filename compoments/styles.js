@@ -7,6 +7,11 @@ export default styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center'
   },
+  authentication_container: {
+    flex: 1,
+    backgroundColor: '#fff',
+    justifyContent: 'center',
+  },
   photo_container: {
     flex: 1,
     backgroundColor: '#F6AE2D',

@@ -7,7 +7,7 @@ import {AsyncStorage} from 'react-native';
 //import  GLOBAL from './global.js';
 import { RetrieveData, StoreData, ConfirmAlert, cloud_delete_photo, cloud_upload_photo } from './helpers.js'
 
-import * as firebase from 'firebase';
+
 
 class DisplayPhotoScreen extends Component{
 

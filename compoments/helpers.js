@@ -42,14 +42,14 @@ export async function RetrieveData (id){
     return id;
   }
 
-  export async function cloud_delete_photo (uri, group_id, is_cover) {
+  export async function cloud_delete_photo (uri, group_id, is_cover, email) {
     /* Delete one photo from Cloud (Firebase Storage) */
     
     var id = get_id_from_uri(uri);
 
     var photo_name = id + '?is_cover=' + is_cover; 
 
-    var ref = firebase.storage().ref().child('CurationTrainer/' + group_id + '/' + photo_name);
+    var ref = firebase.storage().ref().child('CurationTrainer/' + email + '/' + group_id + '/' + photo_name);
     ref.delete().then(() => {
       console.log('photo deleted from cloud.');
     })
@@ -58,7 +58,7 @@ export async function RetrieveData (id){
     })
   }
 
-  export async function cloud_upload_photo (uri, group_id, is_cover) {
+  export async function cloud_upload_photo (uri, group_id, is_cover, email) {
     /* Upload one photo to Cloud (Firebase Storage) */
 
     console.log('>>>>>In cloud_upload_photo function.<<<<');    
@@ -70,7 +70,7 @@ export async function RetrieveData (id){
     var photo_name = id + '?is_cover=' + is_cover;
     console.log('photo_name: ', photo_name);
 
-    var ref = firebase.storage().ref().child('CurationTrainer/' + group_id + '/' + photo_name);
+    var ref = firebase.storage().ref().child('CurationTrainer/' + email + '/' + group_id + '/' + photo_name);
     ref.put(blob).then((res) => {
       //console.log('Success: ', res);
       console.log('Success');

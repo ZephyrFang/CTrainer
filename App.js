@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { NavigationEvents } from 'react-navigation';
-import { createAppContainer } from 'react-navigation';
+import { createAppContainer, createSwitchNavigator } from 'react-navigation';
 import { createStackNavigator } from 'react-navigation-stack';
 import * as firebase from 'firebase';
 
@@ -12,6 +12,7 @@ import SelectPhotosScreen from './compoments/SelectPhotosScreen';
 import DisplayPhotoScreen from './compoments/DisplayOnePhotoScreen';
 import GroupPhotosScreen from './compoments/GroupPhotosScreen';
 import GroupsScreen from './compoments/GroupsScreen';
+import AuthenticationScreen from './compoments/AuthenticationScreen';
 
 
 //import AlbumsScreen from './compoments/AlbumsScreen';
@@ -39,6 +40,7 @@ const RootNavigator = createStackNavigator(
   GroupPhotos: GroupPhotosScreen,
   DisplayPhoto: DisplayPhotoScreen,
   SelectPhotos: SelectPhotosScreen,
+  Authentication: AuthenticationScreen,
   
   },
   {
@@ -70,6 +72,8 @@ export default class App extends Component {
     if ( !firebase.apps.length ) {
       firebase.initializeApp(firebaseConfig);
     }
+
+
 
   }
   render(){
