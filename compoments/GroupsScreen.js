@@ -3,7 +3,7 @@ import { Image, ScrollView, Text, Button, View, TouchableHighlight, FlatList, To
 import styles from './styles';
 //import AsyncStorage from '@react-native-community/async-storage';
 import { AsyncStorage } from 'react-native';
-import { RetrieveData, StoreData } from './helpers.js';
+import { RetrieveData, StoreData, cloud_delete_group } from './helpers.js';
 import * as GLOBAL from './global.js';
 
 import * as firebase from 'firebase';
@@ -12,7 +12,7 @@ class GroupsScreen extends Component {
 
     static navigationOptions = ({navigation}) => {
         return {
-            title: 'Photo Groups',
+            title: 'Photo Groups, ' + global.email,
             headerLeft: (
                 <Button 
                     onPress={navigation.getParam('removeGroups')}
@@ -24,8 +24,10 @@ class GroupsScreen extends Component {
                 <Button                 
                 onPress={() => {
                     firebase.auth().signOut();
-                    AsyncStorage.removeItem('userId'); 
-                    navigation.push('AuthLoading');
+                    AsyncStorage.removeItem('userId').then(() =>{
+                        navigation.push('SignIn');
+                    }); 
+                    //navigation.push('AuthLoading');
                 }}
                 title='Sign Out'
             />
@@ -64,9 +66,6 @@ class GroupsScreen extends Component {
     componentDidMount(){
         console.log('In GroupsScreen compomentDidMount method. ');
 
-
-
-
         this.props.navigation.setParams({
             newGroup: this._newGroup, 
             removeGroups: this._removeGroups,            
@@ -87,16 +86,26 @@ class GroupsScreen extends Component {
                 
                 if (result ){
                     console.log('****** Groups retrieved. *****');
-                    //console.log(' 1.groups: ', groups);
-                    groups = JSON.parse(result);
-                    //console.log(' 2.groups: ', groups);
-                    //console.log('**** Get groups from AsynStorage: ', groups);
-                    console.log('groups lenth: ', groups.length);
+                    console.log('result: ', result);
                     
-                    global.groups = groups;
-                    this.setState({ groups: groups, });
+                    groups = JSON.parse(result);
+                    console.log('groups: ', groups);   
+
+                    var current_user_groups = groups.filter(g => {
+                        return g.userId == global.userId;
+                    });                    
+                   
+                    console.log('current user groups lenth: ', current_user_groups.length);
+                    
+                    global.groups = current_user_groups;
+                    //global.groups = groups;
+                    this.setState({ groups: current_user_groups, });
+                    //this.setState({ groups: groups, });
                 }               
-            })            
+            })  
+            .catch((error) => {
+                console.log('Error in getGroups function in GroupsScreen: ', error);
+              })              
         }
         else{
             /* Get groups from global.groups. */
@@ -118,7 +127,7 @@ class GroupsScreen extends Component {
     }
 
     _removeGroups = () => {
-        /* Remove all groups from device */
+        /* Remove all current user's groups from device */
 
         console.log('@@@@@ In __clearGroups function.');
 
@@ -138,7 +147,40 @@ class GroupsScreen extends Component {
                 text: 'Remove all', 
                 onPress: () => {
                   console.log('Yes Pressed');
-                  AsyncStorage.removeItem('groups'); 
+                  AsyncStorage.removeItem('groups');
+                  
+                  var groups = [];
+                  RetrieveData('groups').then((result) => {
+                
+                    if (result ){
+                        //console.log('****** Groups retrieved. *****');
+                        
+                        groups = JSON.parse(result);
+                        //console.log('groups lenth: ', groups.length);
+                        var other_groups = groups.filter(function(g){
+                            return g.userId != global.userId;
+                        });
+                        AsyncStorage.removeItem('groups').then(() => {
+                            StoreData('groups', other_groups);
+                        })
+                        .catch((error) => {
+                            console.log('Error when removeItem in removeGroups function : ', error);
+                          })     
+                       
+                    }               
+                })
+                .catch((error) => {
+                    console.log('Error when retrieveData in removeGroups function: ', error);
+                  })     
+
+                  /* Clone array without reference */
+                  var current_user_groups = JSON.parse(JSON.stringify(global.groups));                  
+
+                  var i;
+                  for ( i=0; i< current_user_groups.length; i++){
+                      let g = current_user_groups[i];
+                      cloud_delete_group(g.id, g.photos, g.cover, g.email);
+                  }
                   global.groups = [];
                   this.props.navigation.push('Groups');
                           

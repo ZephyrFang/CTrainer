@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { AsyncStorage, Alert } from 'react-native'
 //import { IText, Button, View, TouchableHighlight, FlatList, TouchableOpacity, Alert, Platform, Dimensions } from 'react-native';
 import { Item, Form, Input, Button, Label, Container, Text } from 'native-base';
 import * as firebase from 'firebase';
@@ -14,14 +15,36 @@ class AuthenticationScreen extends Component{
     }
 
     SignIn = ( email, password ) => {
+
+        const { navigation } = this.props;
+
         try {
             firebase.auth().signInWithEmailAndPassword(email, password);
-            firebase.auth().onAuthStateChanged(user => {
-                alert(user.uid);
-                StoreData('userId', user.uid);
-                this.props.navigation.push('Groups');   
+            /* firebase.auth().onAuthStateChanged(user => {
+                alert(email);
+
+                AsyncStorage.setItem('userId', JSON.stringify(user.uid)).then(() => {
+                    this.props.navigation.push('Groups');  
+                })           
+                  .catch((error) => {
+                    console.log('Error: ', error);
+                  })
                 
-            })
+            })*/
+
+            firebase.auth().onAuthStateChanged(function(user) {
+                if (user) {
+                    AsyncStorage.setItem('userId', JSON.stringify(user.uid)).then(() => {
+                        global.email = email;
+                        global.userId = user.uid;
+                        navigation.push('Groups');  
+                    })           
+                      .catch((error) => {
+                        console.log('Error: ', error);
+                      })                             
+                } 
+
+              });
         }
         catch (error){
             console.log(error.toString(error));
@@ -29,8 +52,23 @@ class AuthenticationScreen extends Component{
     }
 
     SignUp = ( email, password ) => {
+        const { navigation } = this.props;
         try {
             firebase.auth().createUserWithEmailAndPassword(email, password);
+
+            firebase.auth().onAuthStateChanged(function(user) {
+                if (user) {
+                    AsyncStorage.setItem('userId', JSON.stringify(user.uid)).then(() => {
+                        global.email = email;
+                        global.userId = user.uid;
+                        navigation.push('Groups');  
+                    })           
+                      .catch((error) => {
+                        console.log('Error: ', error);
+                      })                             
+                } 
+
+              });
         }
         catch (error) {
             console.log(error.toString(error));

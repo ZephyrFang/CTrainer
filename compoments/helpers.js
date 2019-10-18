@@ -17,11 +17,13 @@ export async function RetrieveData (id){
   }
 
   export async function StoreData (id, item) {
-    //console.log(' *** In helpers.js storeData method.');
+    console.log(' *** In helpers.js storeData method.');
+    
     try {
       await AsyncStorage.setItem(
         id, JSON.stringify(item)
       );
+      console.log('data stored on device: ', item);
     }
     catch(err){
       // Error saving data
@@ -58,10 +60,33 @@ export async function RetrieveData (id){
     })
   }
 
+  export function cloud_delete_group (group_id, photos, cover, email ) {
+    console.log('In cloud_delete_group function.');
+
+    
+    //let photos = global.photos;
+    //const cover = this.state.cover;
+    //const email = global.email;
+ 
+    var i;
+    for ( i=0; i< photos.length; i++ ) {
+      let p = photos[i];
+      let is_cover = false;
+      if ( p.uri == cover ){
+        is_cover = true;
+      }
+      let result = cloud_delete_photo(p.uri, group_id, is_cover, email);
+      if ( !result ) {
+        return;
+      }
+    }
+  }
+
   export async function cloud_upload_photo (uri, group_id, is_cover, email) {
     /* Upload one photo to Cloud (Firebase Storage) */
 
     console.log('>>>>>In cloud_upload_photo function.<<<<');    
+    //alert('In cloud_upload_photo, email is: ' + email);
 
     const response = await fetch(uri);
     const blob = await response.blob();

@@ -7,7 +7,7 @@ import {AsyncStorage} from 'react-native';
 
 
 //import * as GLOBAL from './global.js';
-import { RetrieveData, StoreData, ConfirmAlert, AsyncAlert, cloud_delete_photo, cloud_upload_photo } from './helpers.js';
+import { RetrieveData, StoreData, cloud_delete_group, cloud_upload_photo } from './helpers.js';
 
 
 class GroupPhotosScreen extends Component {
@@ -41,12 +41,13 @@ class GroupPhotosScreen extends Component {
     //uploaded: false,
   }
 
-  cloud_delete_group = (group_id) => {
+  /*cloud_delete_group = (group_id) => {
     console.log('In cloud_delete_group function.');
 
     //const group_id = this.state.group_id;
     let photos = global.photos;
     const cover = this.state.cover;
+    const email = global.email;
  
     var i;
     for ( i=0; i< photos.length; i++ ) {
@@ -55,14 +56,14 @@ class GroupPhotosScreen extends Component {
       if ( p.uri == cover ){
         is_cover = true;
       }
-      let result = cloud_delete_photo(p.uri, group_id, is_cover);
+      let result = cloud_delete_photo(p.uri, group_id, is_cover, email);
       if ( !result ) {
         return;
       }
     }
-  }
+  }*/
 
-  cloud_upload_group = (group_id, photos, cover) => {
+  cloud_upload_group = (group_id, photos, cover, email) => {
     /* Upload photos in the group to Cloud (Firebase Storage) */
 
     console.log(' *** In uploadPhotos method.*********');
@@ -78,7 +79,7 @@ class GroupPhotosScreen extends Component {
       if ( p.uri == cover ){
         is_cover = true;
       }
-      let result = cloud_upload_photo(p.uri, group_id, is_cover);
+      let result = cloud_upload_photo(p.uri, group_id, is_cover, email);
       if ( !result ) {
         return;
       }
@@ -113,7 +114,7 @@ class GroupPhotosScreen extends Component {
        global.photos.push(...photos);
 
        /* Upload added photos to cloud */
-       this.cloud_upload_group(group_id, photos, 0);
+       this.cloud_upload_group(group_id, photos, 0, global.email);
 
        console.log('ps.length after push: ', global.photos.length);
        //his.setState({photos: ps });
@@ -176,7 +177,7 @@ _deleteGroup = () => {
             groups.splice(index, 1);
             global.groups = groups;
             StoreData('groups', groups);
-            this.cloud_delete_group(this.state.group_id);
+            cloud_delete_group( this.state.group_id, global.photos, this.state.cover, global.email );
             this.props.navigation.push('Groups');
       }           
         },
@@ -249,13 +250,43 @@ _deleteGroup = () => {
       photos: photos,
       cover: cover,
       //uploaded: false,
+      userId: global.userId,
     }
     
     global.groups.unshift(group);
     console.log('groups length: ', global.groups.length);
 
-    StoreData('groups', global.groups);
-    this.cloud_upload_group(group_id, photos, cover);
+    //StoreData('groups', global.groups);
+    //AsyncStorage.mergeItem('groups', JSON.stringify(group));
+    var all_groups = [];
+    RetrieveData('groups').then((result) => {
+  
+      if (result ){
+          //console.log('****** Groups retrieved. *****');
+          
+          all_groups = JSON.parse(result);
+          all_groups = all_groups.unshift(group);
+          //console.log('groups lenth: ', groups.length);
+          AsyncStorage.removeItem('groups').then(() => {
+            StoreData('groups', all_groups);
+
+          })
+          .catch((error) => {
+            console.log('Error: ', error);
+          })  
+         
+      }
+    else{
+      StoreData('groups', global.groups);
+    }
+  })
+  .catch((error) => {
+      console.log('Error when retrieveData in removeGroups function: ', error);
+    })     
+
+
+
+    this.cloud_upload_group(group_id, photos, cover, global.email);
   } 
 
 

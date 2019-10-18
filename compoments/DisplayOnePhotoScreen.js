@@ -150,13 +150,14 @@ class DisplayPhotoScreen extends Component{
                 }  
 
                 var is_cover = false;
+                const email = global.email;
 
                 if (photos.length == 0){
                   /* empty group should be deleted. */
                   groups.splice(g_index, 1);
                   empty_group = true;
                 }
-                else{
+                else {
                   group.photos = photos;
                   //groups[g_index].cover = global.cover;
                   
@@ -170,8 +171,8 @@ class DisplayPhotoScreen extends Component{
 
                     /* Sync with Cloud */
                     is_cover = true;
-                    cloud_delete_photo(first_uri, group_id, false);
-                    cloud_upload_photo(first_uri, group_id, true);                                        
+                    cloud_delete_photo(first_uri, group_id, false, email);
+                    cloud_upload_photo(first_uri, group_id, true, email);                                        
                   }
                   
                   groups[g_index] = group;
@@ -181,7 +182,7 @@ class DisplayPhotoScreen extends Component{
                 StoreData('groups', groups);
 
                 /* Sync with Cloud */
-                cloud_delete_photo(uri, group_id, is_cover); 
+                cloud_delete_photo(uri, group_id, is_cover, email); 
               }
             }  
       
@@ -231,10 +232,11 @@ class DisplayPhotoScreen extends Component{
 
       /* Update the cover photo on Cloud (Firbase Storage) */
       const old_cover = this.state.cover;
-      cloud_delete_photo(old_cover, group_id, true);
-      cloud_upload_photo(old_cover, group_id, false);
-      cloud_delete_photo(uri, group_id, false);
-      cloud_upload_photo(uri, group_id, true);
+      const email = global.email;
+      cloud_delete_photo(old_cover, group_id, true, email);
+      cloud_upload_photo(old_cover, group_id, false, email);
+      cloud_delete_photo(uri, group_id, false, email);
+      cloud_upload_photo(uri, group_id, true, email);
 
       //global.cover = uri;
       this.setState({ 
