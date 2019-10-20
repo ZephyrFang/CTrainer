@@ -254,18 +254,19 @@ _deleteGroup = () => {
     }
     
     global.groups.unshift(group);
-    console.log('groups length: ', global.groups.length);
+    console.log('groups length in saveNewGroup: ', global.groups.length);
 
     //StoreData('groups', global.groups);
     //AsyncStorage.mergeItem('groups', JSON.stringify(group));
     var all_groups = [];
     RetrieveData('groups').then((result) => {
+      //console.log('get groups result in saveNewGroup', result);
   
       if (result ){
-          //console.log('****** Groups retrieved. *****');
+          console.log('****** result is true. *****');
           
           all_groups = JSON.parse(result);
-          all_groups = all_groups.unshift(group);
+          all_groups.unshift(group);
           //console.log('groups lenth: ', groups.length);
           AsyncStorage.removeItem('groups').then(() => {
             StoreData('groups', all_groups);
@@ -277,6 +278,8 @@ _deleteGroup = () => {
          
       }
     else{
+
+      //console.log('****** result is false,  save global.groups: ', global.groups);
       StoreData('groups', global.groups);
     }
   })

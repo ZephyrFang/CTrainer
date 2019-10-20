@@ -23,7 +23,7 @@ export async function RetrieveData (id){
       await AsyncStorage.setItem(
         id, JSON.stringify(item)
       );
-      console.log('data stored on device: ', item);
+      //console.log('data stored on device: ', item);
     }
     catch(err){
       // Error saving data

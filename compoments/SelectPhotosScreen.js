@@ -23,7 +23,7 @@ class SelectPhotosScreen extends Component {
       //photoArray: [],
       //albums: [],
 
-      imageBrowserOpen: false,
+      //imageBrowserOpen: false,
       photos: []
     };
 
@@ -44,7 +44,7 @@ class SelectPhotosScreen extends Component {
     callback.then((photos) => {
       //console.log(photos)
       this.setState({
-        imageBrowserOpen: false,
+        //imageBrowserOpen: false,
         photos: photos,
       })
     }).catch((e) => console.log(e))
@@ -71,8 +71,8 @@ class SelectPhotosScreen extends Component {
       const group_id = navigation.getParam('group_id', 0);
       const cover = navigation.getParam('cover', 0);
       
-      return (
-        this.props.navigation.push('GroupPhotos', { 
+      //return (
+        navigation.push('GroupPhotos', { 
           photos: this.state.photos,
           add_photos: add_photos,
           //new_group: new_group,
@@ -80,7 +80,7 @@ class SelectPhotosScreen extends Component {
           cover: cover,
         })
         
-      )
+      //)
     }
     //if (this.state.imageBrowserOpen) {
       return (

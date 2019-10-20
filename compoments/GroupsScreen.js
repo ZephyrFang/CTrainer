@@ -86,10 +86,10 @@ class GroupsScreen extends Component {
                 
                 if (result ){
                     console.log('****** Groups retrieved. *****');
-                    console.log('result: ', result);
+                    //console.log('result: ', result);
                     
                     groups = JSON.parse(result);
-                    console.log('groups: ', groups);   
+                    //console.log('groups: ', groups);   
 
                     var current_user_groups = groups.filter(g => {
                         return g.userId == global.userId;
@@ -147,10 +147,11 @@ class GroupsScreen extends Component {
                 text: 'Remove all', 
                 onPress: () => {
                   console.log('Yes Pressed');
-                  AsyncStorage.removeItem('groups');
+                  //AsyncStorage.removeItem('groups');
                   
                   var groups = [];
                   RetrieveData('groups').then((result) => {
+                      //console.log('after remove groups: ', result);
                 
                     if (result ){
                         //console.log('****** Groups retrieved. *****');
@@ -174,12 +175,13 @@ class GroupsScreen extends Component {
                   })     
 
                   /* Clone array without reference */
-                  var current_user_groups = JSON.parse(JSON.stringify(global.groups));                  
+                  var current_user_groups = JSON.parse(JSON.stringify(global.groups));  
+                  const email = global.email;                
 
                   var i;
                   for ( i=0; i< current_user_groups.length; i++){
                       let g = current_user_groups[i];
-                      cloud_delete_group(g.id, g.photos, g.cover, g.email);
+                      cloud_delete_group(g.id, g.photos, g.cover, email);
                   }
                   global.groups = [];
                   this.props.navigation.push('Groups');
