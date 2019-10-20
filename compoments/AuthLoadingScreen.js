@@ -23,7 +23,7 @@ class AuthLoadingScreen extends Component {
                         console.log('userId_from_device fetched. user.email: ', user.email);
                         global.email = user.email;
                         global.userId = user.uid;
-                        //this.props.navigation.push('Groups');  
+                        //navigation.push('Groups');  
                         navigation.navigate('App');
                     })           
                       .catch((error) => {

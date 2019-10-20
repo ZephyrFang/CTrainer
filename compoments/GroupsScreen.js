@@ -25,6 +25,12 @@ class GroupsScreen extends Component {
                 onPress={() => {
                     firebase.auth().signOut();
                     AsyncStorage.removeItem('userId').then(() =>{
+                        /* Clear up global properties. Otherwise the next signed In user will see the previous user's photo groups. */
+                        global.photos = [];
+                        global.groups = [];
+                        global.email = '';
+                        global.userId = 0;
+
                         navigation.push('SignIn');
                     }); 
                     //navigation.push('AuthLoading');
@@ -39,6 +45,7 @@ class GroupsScreen extends Component {
     state = {
         //groupsCopy: [],
         groups: [],
+        user_email: '',
     }
 
     componentWillMount(){
@@ -69,6 +76,10 @@ class GroupsScreen extends Component {
         this.props.navigation.setParams({
             newGroup: this._newGroup, 
             removeGroups: this._removeGroups,            
+        });
+
+        this.setState({
+            user_email: global.email,
         });
         
         this.getGroups();        

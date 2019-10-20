@@ -25,25 +25,11 @@ import AuthLoadingScreen from './compoments/AuthLoadingScreen';
 //import AlbumPhotosScreen from './compoments/AlbumPhotosScreen';
 
 const AppStack = createStackNavigator(
-  {
-  //Home: HomeScreen,
-  //ViewPhotos: ViewPhotosScreen,
-
-  //SelectedPhotos: SelectedPhotosScreen,
-  //Albums: AlbumsScreen,
-  //AlbumPhotos: AlbumPhotosScreen,
-
-
-  //ImagePickerExample: PickImageScreen,
-  //PickMultipleImages: PickMultipleImagesScreen,
-  //FullImagePicker: FullImagePickerScreen,
+  { 
   SelectPhotos: SelectPhotosScreen,
   Groups: GroupsScreen,
   GroupPhotos: GroupPhotosScreen,
-  DisplayPhoto: DisplayPhotoScreen,
-  
-  //Authentication: AuthenticationScreen,
-  
+  DisplayPhoto: DisplayPhotoScreen,    
   },
   {
   initialRouteName: 'Groups',
