@@ -46,7 +46,8 @@ class DisplayPhotoScreen extends Component{
     p_h: 100,
     max_w: 200,
     max_h: 200,
-    index: 0,
+    //index: 0,
+    //p_i: 0,
 
   }
 
@@ -71,14 +72,7 @@ class DisplayPhotoScreen extends Component{
 
   }
 
-  onBackPress = () => {
-    if( this.props.currentRoute.index === 0) {
-      BackHandler.exitApp();
-      return false;
-    }
-    this.props.navigation.goBack(null);
-    return true;
-  }
+
 
   componentWillMount () {
 
@@ -240,6 +234,17 @@ class DisplayPhotoScreen extends Component{
     return dt;
   }
 
+  onBackPress = () => {
+    /* function for Swiper */
+    
+    if( this.props.currentRoute.index === 0) {
+      BackHandler.exitApp();
+      return false;
+    }
+    this.props.navigation.goBack(null);
+    return true;
+  }
+
   _setCover = () => {
 
     console.log('****In DisplayOnePhotoScreen setCover method.*****');
@@ -292,18 +297,17 @@ class DisplayPhotoScreen extends Component{
     } 
   }
 
-  PhotoSwiped = (photo) => {
 
-  }
 
   SetPhotoSize = (photo) => {
 
-    console.log('In SetPhotoSize method.')
+    console.log('(((((((((In SetPhotoSize method.)))))))')
 
     //GLOBAL.screen1State = this;
     const { width, height } = Dimensions.get('window')
-    console.log('width: ', width);
-    console.log('height: ', height);
+    console.log('window_width: ', width);
+    console.log('window_height: ', height);
+    const window_ratio = width/height;
     
 
     //const { navigation} = this.props;
@@ -317,24 +321,35 @@ class DisplayPhotoScreen extends Component{
   
     const p_w = photo.width;
     const p_h = photo.height;
+    const photo_ratio = p_w/p_h;
 
     let w;
     let h;
-    if (p_w < p_h){
-      w = width;
-      h = p_h/p_w * width;
-    }
-    else{
+    if (photo_ratio < window_ratio){
+      /* Portrait */
       h = height;
       w = p_w/p_h * height;
+
+      
+    }
+    else{
+      /* Landscape */
+      w = width;
+      h = p_h/p_w * width;
+      
     }
 
     this.setState({
-      p_w: p_w,
-      p_h: p_h,
+      p_w: w,
+      p_h: h,
       max_w: width,
       max_h: height,
     });  
+
+    console.log('p_w: ', w);
+    console.log('p_h: ', h);
+    console.log('max_w: ', width);
+    console.log('max_h: ', height);    
   } 
 
 
@@ -365,22 +380,34 @@ class DisplayPhotoScreen extends Component{
   }
   */
 
-  render(){
+  hanleOnMomentumScroolEnd(e, state) {
+    alert('handleOnMomentumScroolEnd, p_i: ' + state.index);
+    this.setState({
+      p_i: state.index,
+    });
+  }
+
+  PhotoSwiped = (e, state) => {
+    var photo = global.photos[state.index];
+    console.log('photo swiped, index: ', state.index);
+    console.log('photo.uri: ', photo.uri);
+    this.setState({
+      photo: photo,
+    });
+  }
+
+  /*render(){
 
     var photos = [];
     for (let i=0; i < global.photos.length; i++){
       photos.push(
-        <View key={i} style={styles.container}>
+        <View key={global.photos[i].uri} style={styles.container}>
           <Image source={{uri: global.photos[i].uri}} resizeMode='contain'
         style={{maxHeight: this.state.max_h, maxWidth: this.state.max_w, width: this.state.p_w, height: this.state.p_h, marginLeft: 5, marginRight: 5}} />    
         </View>
       )
-
     }
-
-    return (
-      
-
+    return (     
       <Swiper
       style={styles.wrapper}
       //                showsButtons
@@ -390,12 +417,45 @@ class DisplayPhotoScreen extends Component{
       loop={false}
       activeDotStyle={styles.activeDotStyle}
       index={this.state.index}
-       //onIndexChanged={(i) = this.PhotoSwiped(global.photos[i])}
-      >
-        
+      onMomentumScrollEnd={this.PhotoSwiped} 
+      >        
       {photos}
       
     </Swiper>
+    );
+  }*/
+
+  render () {
+    return (
+        <Swiper style={styles.wrapper}                
+                dotStyle={styles.dotStyle}
+                loop={false}
+                activeDotStyle={styles.activeDotStyle}
+                index={this.state.index}
+
+                onMomentumScrollEnd={this.PhotoSwiped.bind(this)}
+        >
+          {global.photos.map((photo, i) => {
+            return (
+              <View key={i} style={styles.container} >
+                
+                  <Image source={{uri: photo.uri}} resizeMode='contain'
+                      style={{
+                        //maxHeight: this.state.max_h, maxWidth: this.state.max_w - 10, 
+                        //width: this.state.p_w,                         
+                        //height: this.state.p_h,
+                        //width: photo.width,
+                        //height: photo.height,
+                        width: this.state.max_w - 4,
+                        height: this.state.max_h,
+                      }} 
+                  />  
+              
+             </View>
+            )
+          })}
+        </Swiper>
+
     );
   }
 }

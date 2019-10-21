@@ -5,7 +5,7 @@ export default styles = StyleSheet.create({
     //marginTop: 10,
     flex: 1,
     justifyContent: 'center',
-    alignItems: 'center'
+    alignItems: 'center',    
   },
   authentication_container: {
     flex: 1,
@@ -136,6 +136,17 @@ export default styles = StyleSheet.create({
       backgroundColor: 'black',
     },
     wrapper: {},
+
+    slide_container: {
+      //marginTop: 10,
+      flex: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+      borderColor: 'white', 
+      borderRightWidth: 2, 
+      borderLeftWidth: 2     
+    },
+
     slide1: {
       flex: 1,
       justifyContent: 'center',
