@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
-import { Image, ScrollView, Text, Button, StyleSheet, View, TouchableHighlight, Alert, Dimensions } from 'react-native';
+import { Image, ScrollView, Text, Button, StyleSheet, View, TouchableHighlight, Alert, Dimensions, BackHandler } from 'react-native';
 import styles from './styles';
-import {AsyncStorage} from 'react-native';
+//import {AsyncStorage} from 'react-native';
+import Swiper from 'react-native-swiper';
 
 //import * as GLOBAL from './global.js';
 //import  GLOBAL from './global.js';
@@ -45,6 +46,7 @@ class DisplayPhotoScreen extends Component{
     p_h: 100,
     max_w: 200,
     max_h: 200,
+    index: 0,
 
   }
 
@@ -69,30 +71,50 @@ class DisplayPhotoScreen extends Component{
 
   }
 
+  onBackPress = () => {
+    if( this.props.currentRoute.index === 0) {
+      BackHandler.exitApp();
+      return false;
+    }
+    this.props.navigation.goBack(null);
+    return true;
+  }
+
   componentWillMount () {
 
-    console.log('In compomentWillMount method.');  
+    console.log('In compomentWillMount method.'); 
+    
+    BackHandler.addEventListener('hardwareBackPress', this.onBackPress);
 
     const { navigation } = this.props;
     let photo = navigation.getParam('photo', []);  
     //console.log('In DisplayPhotoScreen, photo from navigation: ', photo);
     const cover = navigation.getParam('cover', 0);
     const group_id = navigation.getParam('group_id', 0);
+
     let is_cover = false;
     if ( photo.uri == cover ){
       is_cover = true;
     }
+
+    const index = navigation.getParam('index', 0);
 
     this.setState({
       photo: photo,
       cover: cover,
       group_id: group_id,
       is_cover: is_cover,
+      index: index,
     });
     this.props.navigation.setParams({'is_cover': is_cover});
 
     this.SetPhotoSize(photo);   
    
+  }
+
+  componentWillUnmount() {
+    console.log('unmount dashboard');
+    BackHandler.removeEventListener('hardwareBackPress', this.onBackPress);
   }
 
   _deletePhoto = () => {
@@ -270,6 +292,10 @@ class DisplayPhotoScreen extends Component{
     } 
   }
 
+  PhotoSwiped = (photo) => {
+
+  }
+
   SetPhotoSize = (photo) => {
 
     console.log('In SetPhotoSize method.')
@@ -312,6 +338,7 @@ class DisplayPhotoScreen extends Component{
   } 
 
 
+  /*
   render(){
     //GLOBAL.screen1State = this;
     console.log('In DisplayPhotoScreen render method.');
@@ -329,13 +356,46 @@ class DisplayPhotoScreen extends Component{
 
     return(
       <View style={styles.container}>
-
         
         <Image source={{uri: p_uri}} resizeMode='contain'
-        style={{maxHeight: this.state.max_h, maxWidth: this.state.max_w, width: this.state.p_w, height: this.state.p_h}} />
-        
+        style={{maxHeight: this.state.max_h, maxWidth: this.state.max_w, width: this.state.p_w, height: this.state.p_h}} />     
                       
       </View>
+    );
+  }
+  */
+
+  render(){
+
+    var photos = [];
+    for (let i=0; i < global.photos.length; i++){
+      photos.push(
+        <View key={i} style={styles.container}>
+          <Image source={{uri: global.photos[i].uri}} resizeMode='contain'
+        style={{maxHeight: this.state.max_h, maxWidth: this.state.max_w, width: this.state.p_w, height: this.state.p_h, marginLeft: 5, marginRight: 5}} />    
+        </View>
+      )
+
+    }
+
+    return (
+      
+
+      <Swiper
+      style={styles.wrapper}
+      //                showsButtons
+      //                removeClippedSubviews={false}
+      dotStyle={styles.dotStyle}
+      
+      loop={false}
+      activeDotStyle={styles.activeDotStyle}
+      index={this.state.index}
+       //onIndexChanged={(i) = this.PhotoSwiped(global.photos[i])}
+      >
+        
+      {photos}
+      
+    </Swiper>
     );
   }
 }

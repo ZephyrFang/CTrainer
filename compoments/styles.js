@@ -125,5 +125,39 @@ export default styles = StyleSheet.create({
     fontWeight: 'bold',
     alignSelf: 'center',
     padding: 'auto'
-  }
+  },
+
+  /******** Swiper *******/
+
+    dotStyle: {
+      backgroundColor: 'rgba(0, 0, 0, 0.4)',
+    },
+    activeDotStyle: {
+      backgroundColor: 'black',
+    },
+    wrapper: {},
+    slide1: {
+      flex: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+      backgroundColor: '#5c77a9',
+    },
+    slide2: {
+      flex: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+      backgroundColor: '#5ca1a9',
+    },
+    slide3: {
+      flex: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+      backgroundColor: '#69a95c',
+    },
+    swiper_text: {
+      color: '#fff',
+      fontSize: 30,
+      fontWeight: 'bold',
+    },
+  
 });  

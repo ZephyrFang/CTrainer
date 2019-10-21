@@ -338,6 +338,7 @@ _deleteGroup = () => {
                                   //title: this.getTitle(p),
                                   cover: this.state.cover,
                                   group_id: this.state.group_id,
+                                  index: i,
 
                                 });
                                 }} >
