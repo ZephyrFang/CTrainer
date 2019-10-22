@@ -1,5 +1,8 @@
 import { AsyncStorage, Alert } from 'react-native'
 import * as firebase from 'firebase';
+import Resizer from 'react-image-file-resizer';
+//import ImageResizer from 'react-image-file-resizer';
+
 
 export async function RetrieveData (id){
 
@@ -82,13 +85,27 @@ export async function RetrieveData (id){
     }
   }
 
-  export async function cloud_upload_photo (uri, group_id, is_cover, email) {
+  export async function cloud_upload_photo (old_uri, group_id, is_cover, email) {
     /* Upload one photo to Cloud (Firebase Storage) */
 
     console.log('>>>>>In cloud_upload_photo function.<<<<');    
     //alert('In cloud_upload_photo, email is: ' + email);
 
-    const response = await fetch(uri);
+    /* Resizer.imageFileResizer(
+      old_uri,
+      300,
+      300,
+      'JPEG',
+      100,
+      0,
+   
+      uri => {
+        console.log('new_uri: ', uri)
+    },
+    'base64',
+      ); */
+
+     const response = await fetch(uri);
     const blob = await response.blob();
 
     var id = get_id_from_uri(uri);
@@ -104,7 +121,7 @@ export async function RetrieveData (id){
     .catch((error) => {
       console.log('Error: ', error)
       return false;
-    })
+    }) 
   }
 
   export const AsyncAlert = async () => new Promise((resolve) => {

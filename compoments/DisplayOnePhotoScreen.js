@@ -3,6 +3,7 @@ import { Image, ScrollView, Text, Button, StyleSheet, View, TouchableHighlight, 
 import styles from './styles';
 //import {AsyncStorage} from 'react-native';
 import Swiper from 'react-native-swiper';
+import ImageZoom from 'react-native-image-pan-zoom';
 
 //import * as GLOBAL from './global.js';
 //import  GLOBAL from './global.js';
@@ -26,7 +27,7 @@ class DisplayPhotoScreen extends Component{
           <Image source={require('./images/delete.png')} style={{width:25, height:25}} />
         </TouchableHighlight>   
         <TouchableHighlight style={{width: 50}} onPress={navigation.getParam('setCover')}>
-        <Image source={params.is_cover? require('./images/gold-medal.png') : require('./images/first.png')} 
+        <Image  source={params.is_cover? require('./images/gold-medal.png') : require('./images/first.png')} 
             style={{width:30, height:30}} />
             </TouchableHighlight>
 
@@ -380,12 +381,12 @@ class DisplayPhotoScreen extends Component{
   }
   */
 
-  hanleOnMomentumScroolEnd(e, state) {
+  /*hanleOnMomentumScroolEnd(e, state) {
     alert('handleOnMomentumScroolEnd, p_i: ' + state.index);
     this.setState({
       p_i: state.index,
     });
-  }
+  }*/
 
   PhotoSwiped = (e, state) => {
     var photo = global.photos[state.index];
@@ -394,6 +395,11 @@ class DisplayPhotoScreen extends Component{
     this.setState({
       photo: photo,
     });
+
+    /*this.refs['set_cover_icon'].setNativeProps({
+      source: require('./images/star.png'),
+
+    });*/
   }
 
   /*render(){
@@ -438,19 +444,27 @@ class DisplayPhotoScreen extends Component{
           {global.photos.map((photo, i) => {
             return (
               <View key={i} style={styles.container} >
+
+                <ImageZoom cropWidth={this.state.max_w}
+                           cropHeight={this.state.max_h -150 }
+                           imageWidth={this.state.max_w - 10}
+                           imageHeight={this.state.max_h}
+                >
+
+              
                 
                   <Image source={{uri: photo.uri}} resizeMode='contain'
                       style={{
-                        //maxHeight: this.state.max_h, maxWidth: this.state.max_w - 10, 
+                        maxHeight: this.state.max_h, maxWidth: this.state.max_w - 10, 
                         //width: this.state.p_w,                         
                         //height: this.state.p_h,
-                        //width: photo.width,
-                        //height: photo.height,
-                        width: this.state.max_w - 4,
-                        height: this.state.max_h,
+                        width: photo.width,
+                        height: photo.height,
+                        //width: 200,
+                        //height: 200,
                       }} 
                   />  
-              
+                </ImageZoom>
              </View>
             )
           })}
